@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+    }
+
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin-bottom: 15px;
+      font-size: 2.5rem;
+      font-weight: 600;
+      text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .status {
+      margin-bottom: 25px;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 130px);
+      grid-gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .cell {
+      width: 130px;
+      height: 130px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+      border: 3px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .cell:hover {
+      background: #f0f0f0;
+      transform: scale(1.1);
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+      color: #888;
+    }
+
+    .restart {
+      padding: 12px 25px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 5px 8px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .restart:hover {
+      background: #ff5252;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Tic Tac Toe</h1>
+    <div class="status" id="status">Player X's turn</div>
+    <div class="board" id="board"></div>
+    <button class="restart" id="restart">Restart Game</button>
+  </div>
+
+  <script>
+    const board = document.getElementById('board');
+    const statusDisplay = document.getElementById('status');
+    const restartButton = document.getElementById('restart');
+
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let gameState = ["", "", "", "", "", "", "", "", ""];
+
+    const winningConditions = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    const handleCellClick = (event) => {
+      const cell = event.target;
+      const cellIndex = Array.from(board.children).indexOf(cell);
+
+      if (gameState[cellIndex] !== "" || !gameActive) {
+        return;
+      }
+
+      gameState[cellIndex] = currentPlayer;
+      cell.textContent = currentPlayer;
+      cell.classList.add('taken');
+
+      checkWinner();
+      if (gameActive) {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+      }
+    };
+
+    const checkWinner = () => {
+      for (const condition of winningConditions) {
+        const [a, b, c] = condition;
+        if (
+          gameState[a] &&
+          gameState[a] === gameState[b] &&
+          gameState[a] === gameState[c]
+        ) {
+          statusDisplay.textContent = `Player ${gameState[a]} wins!`;
+          gameActive = false;
+          return;
+        }
+      }
+
+      if (!gameState.includes("")) {
+        statusDisplay.textContent = "It's a tie!";
+        gameActive = false;
+      }
+    };
+
+    const restartGame = () => {
+      currentPlayer = 'X';
+      gameActive = true;
+      gameState = ["", "", "", "", "", "", "", "", ""];
+      statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+
+      Array.from(board.children).forEach(cell => {
+        cell.textContent = "";
+        cell.classList.remove('taken');
+      });
+    };
+
+    const initializeBoard = () => {
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        board.appendChild(cell);
+        cell.addEventListener('click', handleCellClick);
+      }
+
+      statusDisplay.textContent = `Player ${currentPlayer}'s turn`;
+      restartButton.addEventListener('click', restartGame);
+    };
+
+    initializeBoard();
+  </script>
+</body>
+</html>
